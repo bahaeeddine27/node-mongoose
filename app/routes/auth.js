@@ -1,7 +1,6 @@
 const express = require('express');
-const authController = require('../controllers/authController');
-
 const router = express.Router();
+const authController = require('../controllers/authController');
 
 // Route pour l'inscription
 router.post('/signup', authController.signup);

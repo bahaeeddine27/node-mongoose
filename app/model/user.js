@@ -1,42 +1,36 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 const uniqueValidator = require('mongoose-unique-validator');
+const bcrypt = require('bcrypt');
 
-// Définition du schéma utilisateur
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,  // L'email doit être unique
-    match: [/\S+@\S+\.\S+/, 'Veuillez entrer un email valide']
+    unique: true,
+    lowercase: true, // Convertit l'email en minuscules avant de l'enregistrer
+    trim: true
   },
   password: {
     type: String,
-    required: true,
-    minlength: 6
+    required: true
   }
 });
 
-// Appliquer le middleware uniqueValidator
-userSchema.plugin(uniqueValidator);
+// Appliquer le validateur unique pour l'email
+userSchema.plugin(uniqueValidator, { message: '{PATH} déjà utilisé' });
 
-// Middleware pour hacher le mot de passe avant de sauvegarder
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    return next();
-  }
+// Middleware pour hasher le mot de passe avant de sauvegarder l'utilisateur
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next(); // Si le mot de passe n'est pas modifié, ne rien faire
   try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+    const salt = await bcrypt.genSalt(10); // Générer un sel
+    this.password = await bcrypt.hash(this.password, salt); // Hacher le mot de passe
     next();
   } catch (error) {
     next(error);
   }
 });
 
-// Comparer le mot de passe lors de la connexion
-userSchema.methods.comparePassword = async function (password) {
-  return await bcrypt.compare(password, this.password);
-};
+const User = mongoose.model('User', userSchema);
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = User;
