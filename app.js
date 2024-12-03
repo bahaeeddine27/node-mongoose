@@ -1,10 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
+const authRoutes = require('./app/routes/auth'); // Importer les routes d'authentification
 
 const app = express();
 
-// Connexion à MongoDB avec Mongoose
+// Middleware pour parser le corps des requêtes en JSON
+app.use(express.json());
+
+// Connexion à MongoDB
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
@@ -14,17 +18,15 @@ const connectDB = async () => {
     console.log('MongoDB Connected');
   } catch (error) {
     console.error('Error connecting to MongoDB', error);
-    process.exit(1);  // Quitte le processus si la connexion échoue
+    process.exit(1);
   }
 };
 
 // Appel de la fonction de connexion à MongoDB
 connectDB();
 
-// Définir une route pour la racine "/"
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+// Routes d'authentification (Signup et Login)
+app.use('/api/auth', authRoutes);
 
 // Démarre le serveur
 const port = process.env.PORT || 3000;
