@@ -1,21 +1,28 @@
 const express = require('express');
-require('./app/model/index.js');
-const router = require('./app/routes/index.js');
+const mongoose = require('mongoose');
+require('dotenv').config();
 
 const app = express();
 
-app.use(express.json());
-app.use("/api", router);
+// Connexion à MongoDB avec Mongoose
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('MongoDB Connected');
+  } catch (error) {
+    console.error('Error connecting to MongoDB', error);
+    process.exit(1);  // Quitte le processus si la connexion échoue
+  }
+};
 
-module.exports = app;
+// Appel de la fonction de connexion à MongoDB
+connectDB();
 
-require('dotenv').config();
+// Démarre le serveur
 const port = process.env.PORT || 3000;
-
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
 app.listen(port, () => {
-  console.log(`App listening on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });
