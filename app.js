@@ -21,6 +21,11 @@ const connectDB = async () => {
 // Appel de la fonction de connexion à MongoDB
 connectDB();
 
+// Définir une route pour la racine "/"
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+
 // Démarre le serveur
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
