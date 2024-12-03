@@ -1,35 +1,23 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-require('dotenv').config();
-const authRoutes = require('./app/routes/auth'); // Importer les routes d'authentification
+const authRoutes = require('./app/routes/auth');
 
 const app = express();
 
-// Middleware pour parser le corps des requêtes en JSON
+// Middleware pour le parsing JSON
 app.use(express.json());
 
 // Connexion à MongoDB
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('MongoDB Connected');
-  } catch (error) {
-    console.error('Error connecting to MongoDB', error);
-    process.exit(1);
-  }
-};
+mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('MongoDB connecté'))
+  .catch((error) => console.log('Erreur de connexion à MongoDB:', error));
 
-// Appel de la fonction de connexion à MongoDB
-connectDB();
-
-// Routes d'authentification (Signup et Login)
+// Utiliser les routes d'authentification
 app.use('/api/auth', authRoutes);
 
-// Démarre le serveur
+// Démarrer le serveur
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`Serveur en cours d'exécution sur le port ${port}`);
 });
